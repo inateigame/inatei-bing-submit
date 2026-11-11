@@ -1,0 +1,25 @@
+name: Bing URL submit
+
+on:
+  schedule:
+    - cron: "7 * * * *"   # 毎時7分に実行(UTC。日本時間でも毎時7分)
+  workflow_dispatch:       # Actions 画面から手動実行もできる
+    inputs:
+      lookback_hours:
+        description: "何時間前までの記事を送るか"
+        default: "3"
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Submit new posts to Bing
+        env:
+          BING_API_KEY: ${{ secrets.BING_API_KEY }}
+          LOOKBACK_HOURS: ${{ github.event.inputs.lookback_hours || '3' }}
+        run: python submit.py
